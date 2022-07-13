@@ -1,6 +1,9 @@
 import 'dart:ui';
-
+import 'QuesBank.dart';
 import 'package:flutter/material.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
+
+QuizBank quiz=QuizBank();
 
 void main() {
   runApp(const Quiz());
@@ -35,19 +38,28 @@ class QuizPage extends StatefulWidget {
 class _QuizPageState extends State<QuizPage> {
   List<Icon> scoreKeeper=[
   ];
-  List<String> question=[
-    'You can lead a cow up stairs but not down stairs',
-    'Approximately one quarter of human bones are in feet',
-    'A slug\'s blood is green',
-  ];
+  void checkans(bool userAns){
+    if(quiz.isFinished()){
+      Alert(context: context, title: "Finished!", desc: "You have reached the end of quiz.").show();
+      quiz.reset();// index=0;
+      scoreKeeper.clear();
+    }
+    else {
+      if (quiz.getans() == userAns) {
+        scoreKeeper.add(Icon(
+          Icons.check,
+          color: Colors.green,
 
-  List<bool> ans=[
-    false,
-    true,
-    true,
-  ]
+        ));
+      } else {
+        scoreKeeper.add(Icon(
+          Icons.close,
+          color: Colors.red,
 
-  int qno=0;
+        ));
+      }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -61,12 +73,12 @@ class _QuizPageState extends State<QuizPage> {
                 padding: const EdgeInsets.all(25.0),
                 child: Center(
                   child: Text(
-                       question[qno],
+                       quiz.getq(),
                        textAlign: TextAlign.center,
                        style:const TextStyle(
                          color: Colors.white,
                          fontSize: 30,
-        ),
+                    ),
                   ),
                 ),
               ),
@@ -75,16 +87,7 @@ class _QuizPageState extends State<QuizPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: TextButton(
-                  onPressed: (){
-                    if(ans[qno]==true) {
-                      print('user is right');
-                    }else{
-                      print("User is Wrong");
-                    }
-                    setState(() {
-                      qno++;
-                    });
-                  },
+
                   child: const Text(
                       'True',
                     style:TextStyle(
@@ -95,24 +98,21 @@ class _QuizPageState extends State<QuizPage> {
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.green,
                   ),
+                    onPressed: (){
+                      checkans(true);
+                      setState(() {
+                        quiz.nextques();
+                      });
+                    },
 
             ),
+
                 )
             ),
             Expanded(
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: TextButton(
-              onPressed: (){
-                if(ans[qno]==false){
-                  print('user is right');
-                }else {
-                  print('User is wrong');
-                }
-                setState(() {
-                  qno++;
-                });
-              },
               child: const Text('False',
                 style:TextStyle(
                   fontSize: 20,
@@ -121,6 +121,12 @@ class _QuizPageState extends State<QuizPage> {
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.red,
                 ),
+                onPressed: (){
+                  checkans(false);
+                  setState(() {
+                    quiz.nextques();
+                  });
+                },
 
               ),
             ),
